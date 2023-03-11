@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj8Sk" crossorigin="anonymous" />
+	<title>LA employee Schedule</title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.2/xlsx.full.min.js"></script>
+</head>
+
+<body>
+	<h1 style="text-align:center">LA Master Scheduling Program</h1>
+	<div class="conatiner mt-5">
+		<div class="row">
+			<div class="col-md-3"></div>
+			<div class="col-md-3">
+				<input class="form-control" type="file" id="input" accept=".xls,.xlsx" /> </div>
+			<div class="col-md-2">
+				<button class="btn btn-primary" id="button">View Data</button>
+			</div>
+			<div class="col-md-12"><pre id="jsondata"></pre></div>
+		</div>
+	</div>
+</body>
+<footer>
+	<p>Instructions:
+		<br /> </p>
+	<p>1.) Upload/Attach the excel file called newSampleSchedule
+		<br /> </p>
+	<p> 2.) Once the excel file is uploaded/attached, click the "View Data" button
+		<br /> </p>
+	<p> 3.) You can run this program as many time as you want by refreshing the page after attaching the excel file (newSampleSchedule) and clicking view data
+		<br /> </p>
+	<p>4.) Each refresh will provide a different output
+		<br /> </p>
+	<p>5.) If you have any questions, please feel free to call at 808-938-9528 or email derick.crelencia@usda.gov
+		<br /> </p>
+</footer>
+<script>
+//changes from previous version: effectiveDate = currentDate, rowObject = rowObject
+//https://levelup.gitconnected.com/how-to-convert-excel-file-into-json-object-by-using-javascript-9e95032d48c5
+let selectedFile;
+console.log(window.XLSX);
+document.getElementById('input').addEventListener("change", (event) => {
+	selectedFile = event.target.files[0];
+})
+let data = [{
+	"name": "test",
+	"data": "scd",
+	"abc": "sdef"
+}]
+const daysOfTheWeek = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+
+function ExcelDateToJSDate(date) {
+	return new Date(Math.round((date - 25569) * 86400 * 1000));
+}
+document.getElementById('button').addEventListener("click", () => {
+	XLSX.utils.json_to_sheet(data, 'out.xlsx');
+	if(selectedFile) {
+		let fileReader = new FileReader();
+		fileReader.readAsBinaryString(selectedFile);
+		fileReader.onload = (event) => {
+			let data = event.target.result;
+			//https://stackoverflow.com/questions/62770664/date-format-changing-when-converting-xlsx-to-json
+			let workbook = XLSX.read(data, {
+				type: 'binary',
+				cellDates: true
+			});
+			//XLSX.read(data,{type:"binary"}); -> Have to use w/ ExcelDateToJSDate https://stackoverflow.com/questions/16229494/converting-excel-date-serial-number-to-date-using-javascript/67130235#67130235
+			console.log(workbook);
+			workbook.SheetNames.forEach(sheet => {
+				let rowObject = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[sheet]);
+				var totalPayPeriodWorkDays = [];
+				//Create a local array which its index will represent the LA employee and its element will be the amount of days worked
+				for(var i = 0; i < rowObject.length; i++) {
+					if(rowObject.Name !== null) totalPayPeriodWorkDays.push(0);
+					//initial work days is 0
+				}
+				var currentCount430 = 0;
+				var currentCount500 = 0;
+				var currentCount530 = 0;
+				var currentCount600 = 0;
+				var currentCount630 = 0;
+				var currentCount700 = 0;
+				var currentCount730 = 0;
+				var currentCount800 = 0;
+				var currentCount830 = 0;
+				var currentCount900 = 0;
+				var currentCount930 = 0;
+				var currentCount1000 = 0;
+				var currentCount1030 = 0;
+				var currnetCount1100 = 0;
+				var currentCount1130 = 0;
+				var currentCount1200 = 0;
+				var currentCount1230 = 0;
+				var currentCount1300 = 0;
+				var currentCount1330 = 0;
+				var currentCount1430 = 0;
+				var currentCount1700 = 0;
+				var currentCount1730 = 0;
+				var currentDay = rowObject[0].DAYOFTHEWEEK;
+				var randomLA = (Math.floor(Math.random() * rowObject.length));
+				var remainingLA = 0;
+				document.write("<table>", "<tr>", "<td>", 'Schedule for ', rowObject[0].DAYOFTHEWEEK, "</td>", "</tr>", "</table>");
+				document.write("LAs who are randomly selected to work for this day:" + "<br>");
+				document.write("<br>");
+				document.write("<table>", "<tr>", "<td>", 'NAME', "</td>", "<td>", 'TIME', "</td>", "<td>", 'DAYSLEFT', "</td>", "</tr>", "</table>");
+				document.write("<br>");
+				var secondHalfName = [];
+				var secondHalfTime = [];
+				var secondHalfDaysLeft = [];
+				var nameOfAvailableLAButNotChosen = [];
+				var timeOfAvailableLAButNotChosen = [];
+				var daysLeftOfAvaiableLAButNotChosen = [];
+				var nameOfAvailableLAButNotChosenSecondHalf = [];
+				var timeOfAvailableLAButNotChosenSecondHalf = [];
+				var daysLeftOfAvaiableLAButNotChosenSecondHalf = [];
+				for(var i = randomLA; i < rowObject.length; i++) {
+					remainingLA++;
+					if(rowObject[i][currentDay + "AVAILABLE"] === 'N' || rowObject[i][currentDay + "AVAILABLE"] === 'L') {
+						secondHalfName.push(rowObject[i].NAME);
+						secondHalfTime.push("o");
+						secondHalfDaysLeft.push(rowObject[i].DAYSLEFT);
+					} else if(rowObject[i][currentDay + "AVAILABLE"] === 'A' && rowObject[i][currentDay + "START"] === 500 && rowObject[i].DAYSLEFT > 0) {
+						if(Math.random() * 100 < 100 && currentCount500 !== rowObject[0].five) {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "500", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("500");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT - 1);
+							currentCount500++;
+						} else if(Math.random() * 100 < 100 && currentCount530 !== rowObject[0].fivethirty) {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "530", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("530");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT - 1);
+							currentCount530++;
+						} else if(Math.random() * 100 < 100 && currentCount600 !== rowObject[0].six) {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "600", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("600");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT - 1);
+							currentCount600++;
+						} else {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>",  "<td>", " ",  "</td>",  "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT);
+							nameOfAvailableLAButNotChosenSecondHalf.push(rowObject[i].NAME);
+							timeOfAvailableLAButNotChosenSecondHalf.push(rowObject[i][currentDay + "START"]);
+							daysLeftOfAvaiableLAButNotChosenSecondHalf.push(rowObject[i].DAYSLEFT);
+						}
+					} else if(rowObject[i][currentDay + "AVAILABLE"] === 'A' && rowObject[i][currentDay + "START"] === 600 && rowObject[i].DAYSLEFT > 0) {
+						if(Math.random() * 100 < 100 && currentCount600 !== rowObject[0].six) {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "600", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("600");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT - 1);
+							currentCount600++;
+						} else if(Math.random() * 100 < 100 && currentCount700 !== rowObject[0].seven) {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "700", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("700");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT - 1);
+							currentCount700++;
+						} else {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>",  "<td>", " ",  "</td>",  "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("  ");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT);
+							nameOfAvailableLAButNotChosenSecondHalf.push(rowObject[i].NAME);
+							timeOfAvailableLAButNotChosenSecondHalf.push(rowObject[i][currentDay + "START"]);
+							daysLeftOfAvaiableLAButNotChosenSecondHalf.push(rowObject[i].DAYSLEFT);
+						}
+					} else if(rowObject[i][currentDay + "AVAILABLE"] === 'A' && rowObject[i][currentDay + "START"] === 630 && rowObject[i].DAYSLEFT > 0) {
+						if(Math.random() * 100 < 100 && currentCount630 !== rowObject[0].sixthirty) {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "600", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("630");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT - 1);
+							currentCount630++;
+						} else {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>",  "<td>", " ",  "</td>",  "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("  ");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT);
+							nameOfAvailableLAButNotChosenSecondHalf.push(rowObject[i].NAME);
+							timeOfAvailableLAButNotChosenSecondHalf.push(rowObject[i][currentDay + "START"]);
+							daysLeftOfAvaiableLAButNotChosenSecondHalf.push(rowObject[i].DAYSLEFT);
+						}
+					} else if(rowObject[i][currentDay + "AVAILABLE"] === 'A' && rowObject[i][currentDay + "START"] === 700 && rowObject[i].DAYSLEFT > 0) {
+						if(Math.random() * 100 < 100 && currentCount700 !== rowObject[0].seven) {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "700", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("700");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT - 1);
+							currentCount700++;
+						} else if(Math.random() * 100 < 100 && currentCount730 !== rowObject[0].seventhirty) {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "730", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("730");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT - 1);
+							currentCount730++;
+						} else if(Math.random() * 100 < 100 && currentCount800 !== rowObject[0].eight) {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "800", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("800");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT - 1);
+							currentCount800++;
+						} else {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>",  "<td>", " ",  "</td>",  "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("  ");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT);
+							nameOfAvailableLAButNotChosenSecondHalf.push(rowObject[i].NAME);
+							timeOfAvailableLAButNotChosenSecondHalf.push(rowObject[i][currentDay + "START"]);
+							daysLeftOfAvaiableLAButNotChosenSecondHalf.push(rowObject[i].DAYSLEFT);
+						}
+					} else if(rowObject[i][currentDay + "AVAILABLE"] === 'A' && rowObject[i][currentDay + "START"] === 800 && rowObject[i].DAYSLEFT > 0) {
+						if(Math.random() * 100 < 100 && currentCount800 !== rowObject[0].eight) {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "800", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("800");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT - 1);
+							currentCount800++;
+						} else if(Math.random() * 100 < 100 && currentCount830 !== rowObject[0].eightthirty) {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "830", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("830");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT - 1);
+							currentCount830++;
+						} else if(Math.random() * 100 < 100 && currentCount900 !== rowObject[0].nine) {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "900", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("900");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT - 1);
+							currentCount900++;
+						} else if(Math.random() * 100 < 100 && currentCount1000 !== rowObject[0].ten) {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1000", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("1000");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT - 1);
+							currentCount1000++;
+						} else {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>",  "<td>", " ",  "</td>",  "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("  ");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT);
+							nameOfAvailableLAButNotChosenSecondHalf.push(rowObject[i].NAME);
+							timeOfAvailableLAButNotChosenSecondHalf.push(rowObject[i][currentDay + "START"]);
+							daysLeftOfAvaiableLAButNotChosenSecondHalf.push(rowObject[i].DAYSLEFT);
+						}
+					} else if(rowObject[i][currentDay + "AVAILABLE"] === 'A' && rowObject[i][currentDay + "START"] === 900 && rowObject[i].DAYSLEFT > 0) {
+						if(Math.random() * 100 < 100 && currentCount900 !== rowObject[0].nine) {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "900", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("900");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT - 1);
+							currentCount900++;
+						} else if(Math.random() * 100 < 100 && currentCount1000 !== rowObject[0].ten) {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1000", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("1000");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT - 1);
+							currentCount1000++;
+						} else {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>",  "<td>", " ",  "</td>",  "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("  ");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT);
+							nameOfAvailableLAButNotChosenSecondHalf.push(rowObject[i].NAME);
+							timeOfAvailableLAButNotChosenSecondHalf.push(rowObject[i][currentDay + "START"]);
+							daysLeftOfAvaiableLAButNotChosenSecondHalf.push(rowObject[i].DAYSLEFT);
+						}
+					} else if(rowObject[i][currentDay + "AVAILABLE"] === 'A' && rowObject[i][currentDay + "START"] === 930 && rowObject[i].DAYSLEFT > 0) {
+						if(Math.random() * 100 < 100 && currentCount930 !== rowObject[0].ninethirty) {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "900", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("930");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT - 1);
+							currentCount930++;
+						} else {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>",  "<td>", " ",  "</td>",  "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("  ");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT);
+							nameOfAvailableLAButNotChosenSecondHalf.push(rowObject[i].NAME);
+							timeOfAvailableLAButNotChosenSecondHalf.push(rowObject[i][currentDay + "START"]);
+							daysLeftOfAvaiableLAButNotChosenSecondHalf.push(rowObject[i].DAYSLEFT);
+						}
+					} else if(rowObject[i][currentDay + "AVAILABLE"] === 'A' && rowObject[i][currentDay + "START"] === 1000 && rowObject[i].DAYSLEFT > 0) {
+						if(Math.random() * 100 < 100 && currentCount1000 !== rowObject[0].ten) {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1000", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("1000");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT - 1);
+							currentCount1000++;
+						} else if(Math.random() * 100 < 100 && currentCount1030 !== rowObject[0].tenthirty) {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1000", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("1030");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT - 1);
+							currentCount1030++;
+						} else {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>",  "<td>", " ",  "</td>",  "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("  ");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT);
+							nameOfAvailableLAButNotChosenSecondHalf.push(rowObject[i].NAME);
+							timeOfAvailableLAButNotChosenSecondHalf.push(rowObject[i][currentDay + "START"]);
+							daysLeftOfAvaiableLAButNotChosenSecondHalf.push(rowObject[i].DAYSLEFT);
+						}
+					} else if(rowObject[i][currentDay + "AVAILABLE"] === 'A' && rowObject[i][currentDay + "START"] === 1100 && rowObject[i].DAYSLEFT > 0) {
+						if(Math.random() * 100 < 100 && currentCount1100 !== rowObject[0].eleven) {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1000", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("1100");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT - 1);
+							currentCount1100++;
+						} else if(Math.random() * 100 < 100 && currentCount1130 !== rowObject[0].eleventhirty) {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1000", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("1130");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT - 1);
+							currentCount1130++;
+						} else if(Math.random() * 100 < 100 && currentCount1200 !== rowObject[0].twelve) {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1000", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("1200");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT - 1);
+							currentCount1200++;
+						} else {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>",  "<td>", " ",  "</td>",  "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("  ");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT);
+							nameOfAvailableLAButNotChosenSecondHalf.push(rowObject[i].NAME);
+							timeOfAvailableLAButNotChosenSecondHalf.push(rowObject[i][currentDay + "START"]);
+							daysLeftOfAvaiableLAButNotChosenSecondHalf.push(rowObject[i].DAYSLEFT);
+						}
+					} else if(rowObject[i][currentDay + "AVAILABLE"] === 'A' && rowObject[i][currentDay + "START"] === 1200 && rowObject[i].DAYSLEFT > 0) {
+						if(Math.random() * 100 < 100 && currentCount1200 !== rowObject[0].twelve) {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1000", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("1200");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT - 1);
+							currentCount1200++;
+						} else if(Math.random() * 100 < 100 && currentCount1230 !== rowObject[0].twelvethirty) {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1000", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("1230");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT - 1);
+							currentCount1230++;
+						} else if(Math.random() * 100 < 100 && currentCount1300 !== rowObject[0].thirteen) {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1000", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("1300");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT - 1);
+							currentCount1300++;
+						} else {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>",  "<td>", " ",  "</td>",  "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("  ");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT);
+							nameOfAvailableLAButNotChosenSecondHalf.push(rowObject[i].NAME);
+							timeOfAvailableLAButNotChosenSecondHalf.push(rowObject[i][currentDay + "START"]);
+							daysLeftOfAvaiableLAButNotChosenSecondHalf.push(rowObject[i].DAYSLEFT);
+						}
+					} else if(rowObject[i][currentDay + "AVAILABLE"] === 'A' && rowObject[i][currentDay + "START"] === 1300 && rowObject[i].DAYSLEFT > 0) {
+						if(Math.random() * 100 < 100 && currentCount1300 !== rowObject[0].thirteen) {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1000", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("1300");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT - 1);
+							currentCount1300++;
+						} else {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>",  "<td>", " ",  "</td>",  "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("  ");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT);
+							nameOfAvailableLAButNotChosenSecondHalf.push(rowObject[i].NAME);
+							timeOfAvailableLAButNotChosenSecondHalf.push(rowObject[i][currentDay + "START"]);
+							daysLeftOfAvaiableLAButNotChosenSecondHalf.push(rowObject[i].DAYSLEFT);
+						}
+					} else if(rowObject[i][currentDay + "AVAILABLE"] === 'A' && rowObject[i][currentDay + "START"] === 1330 && rowObject[i].DAYSLEFT > 0) {
+						if(Math.random() * 100 < 100 && currentCount1330 !== rowObject[0].thirteenthirty) {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1330", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("1330");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT - 1);
+							currentCount1330++;
+						} else if(Math.random() * 100 < 100 && currentCount1430 !== rowObject[0].fourteenthirty) {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1430", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("1430");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT - 1);
+							currentCount1430++;
+						} else {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>",  "<td>", " ",  "</td>",  "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("  ");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT);
+							nameOfAvailableLAButNotChosenSecondHalf.push(rowObject[i].NAME);
+							timeOfAvailableLAButNotChosenSecondHalf.push(rowObject[i][currentDay + "START"]);
+							daysLeftOfAvaiableLAButNotChosenSecondHalf.push(rowObject[i].DAYSLEFT);
+						}
+					} else if(rowObject[i][currentDay + "AVAILABLE"] === 'A' && rowObject[i][currentDay + "START"] === 1430 && rowObject[i].DAYSLEFT > 0) {
+						if(Math.random() * 100 < 100 && currentCount1430 !== rowObject[0].fourteenthirty) {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1430", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("1430");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT - 1);
+							currentCount1430++;
+						} else {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>",  "<td>", " ",  "</td>",  "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("  ");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT);
+							nameOfAvailableLAButNotChosenSecondHalf.push(rowObject[i].NAME);
+							timeOfAvailableLAButNotChosenSecondHalf.push(rowObject[i][currentDay + "START"]);
+							daysLeftOfAvaiableLAButNotChosenSecondHalf.push(rowObject[i].DAYSLEFT);
+						}
+					} else if(rowObject[i][currentDay + "AVAILABLE"] === 'A' && rowObject[i][currentDay + "START"] === 1700 && rowObject[i].DAYSLEFT > 0) {
+						if(Math.random() * 100 < 100 && currentCount1700 !== rowObject[0].seventeen) {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1700", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("1700");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT - 1);
+							currentCount1700++;
+						} else if(Math.random() * 100 < 100 && currentCount1730 !== rowObject[0].seventeenthirty) {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1730", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("1730");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT - 1);
+							currentCount1730++;
+						} else {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>",  "<td>", " ",  "</td>",  "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("  ");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT);
+							nameOfAvailableLAButNotChosenSecondHalf.push(rowObject[i].NAME);
+							timeOfAvailableLAButNotChosenSecondHalf.push(rowObject[i][currentDay + "START"]);
+							daysLeftOfAvaiableLAButNotChosenSecondHalf.push(rowObject[i].DAYSLEFT);
+						}
+					} else if(rowObject[i][currentDay + "AVAILABLE"] === 'A' && rowObject[i][currentDay + "START"] === 1730 && rowObject[i].DAYSLEFT > 0) {
+						if(Math.random() * 100 < 100 && currentCount1730 !== rowObject[0].seventeenthirty) {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1730", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("1730");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT - 1);
+							currentCount1730++;
+						} else {
+							//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>",  "<td>", " ",  "</td>",  "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+							secondHalfName.push(rowObject[i].NAME);
+							secondHalfTime.push("  ");
+							secondHalfDaysLeft.push(rowObject[i].DAYSLEFT);
+							nameOfAvailableLAButNotChosenSecondHalf.push(rowObject[i].NAME);
+							timeOfAvailableLAButNotChosenSecondHalf.push(rowObject[i][currentDay + "START"]);
+							daysLeftOfAvaiableLAButNotChosenSecondHalf.push(rowObject[i].DAYSLEFT);
+						}
+					} else {
+						//document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>",  "<td>", " ",  "</td>",  "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+						secondHalfName.push(rowObject[i].NAME);
+						secondHalfTime.push("  ");
+						secondHalfDaysLeft.push(rowObject[i].DAYSLEFT);
+					}
+				}
+				for(var i = 0; i < rowObject.length - remainingLA; i++) {
+					if(rowObject[i][currentDay + "AVAILABLE"] === 'N' || rowObject[i][currentDay + "AVAILABLE"] === 'L') {
+						document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "o", "</td>", "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+					} else if(rowObject[i][currentDay + "AVAILABLE"] === 'A' && rowObject[i][currentDay + "START"] === 500 && rowObject[i].DAYSLEFT > 0) {
+						if(Math.random() * 100 < 100 && currentCount500 !== rowObject[0].five) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "500", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount500++;
+						} else if(Math.random() * 100 < 100 && currentCount530 !== rowObject[0].fivethirty) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "530", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount530++;
+						} else if(Math.random() * 100 < 100 && currentCount600 !== rowObject[0].six) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "600", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount600++;
+						} else {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", " ", "</td>", "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+							nameOfAvailableLAButNotChosen.push(rowObject[i].NAME);
+							timeOfAvailableLAButNotChosen.push(rowObject[i][currentDay + "START"]);
+							daysLeftOfAvaiableLAButNotChosen.push(rowObject[i].DAYSLEFT);
+						}
+					} else if(rowObject[i][currentDay + "AVAILABLE"] === 'A' && rowObject[i][currentDay + "START"] === 600 && rowObject[i].DAYSLEFT > 0) {
+						if(Math.random() * 100 < 100 && currentCount600 !== rowObject[0].six) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "600", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount600++;
+						} else if(Math.random() * 100 < 100 && currentCount700 !== rowObject[0].seven) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "700", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount700++;
+						} else {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", " ", "</td>", "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+							nameOfAvailableLAButNotChosen.push(rowObject[i].NAME);
+							timeOfAvailableLAButNotChosen.push(rowObject[i][currentDay + "START"]);
+							daysLeftOfAvaiableLAButNotChosen.push(rowObject[i].DAYSLEFT);
+						}
+					} else if(rowObject[i][currentDay + "AVAILABLE"] === 'A' && rowObject[i][currentDay + "START"] === 630 && rowObject[i].DAYSLEFT > 0) {
+						if(Math.random() * 100 < 100 && currentCount630 !== rowObject[0].sixthirty) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "630", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount630++;
+						} else {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", " ", "</td>", "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+							nameOfAvailableLAButNotChosen.push(rowObject[i].NAME);
+							timeOfAvailableLAButNotChosen.push(rowObject[i][currentDay + "START"]);
+							daysLeftOfAvaiableLAButNotChosen.push(rowObject[i].DAYSLEFT);
+						}
+					} else if(rowObject[i][currentDay + "AVAILABLE"] === 'A' && rowObject[i][currentDay + "START"] === 700 && rowObject[i].DAYSLEFT > 0) {
+						if(Math.random() * 100 < 100 && currentCount700 !== rowObject[0].seven) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "700", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount700++;
+						} else if(Math.random() * 100 < 100 && currentCount730 !== rowObject[0].seventhirty) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "730", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount730++;
+						} else if(Math.random() * 100 < 100 && currentCount800 !== rowObject[0].eight) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "800", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount800++;
+						} else {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", " ", "</td>", "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+							nameOfAvailableLAButNotChosen.push(rowObject[i].NAME);
+							timeOfAvailableLAButNotChosen.push(rowObject[i][currentDay + "START"]);
+							daysLeftOfAvaiableLAButNotChosen.push(rowObject[i].DAYSLEFT);
+						}
+					} else if(rowObject[i][currentDay + "AVAILABLE"] === 'A' && rowObject[i][currentDay + "START"] === 800 && rowObject[i].DAYSLEFT > 0) {
+						if(Math.random() * 100 < 100 && currentCount800 !== rowObject[0].eight) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "800", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount800++;
+						} else if(Math.random() * 100 < 100 && currentCount830 !== rowObject[0].eightthirty) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "830", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount830++;
+						} else if(Math.random() * 100 < 100 && currentCount900 !== rowObject[0].nine) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "900", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount900++;
+						} else if(Math.random() * 100 < 100 && currentCount1000 !== rowObject[0].ten) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1000", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount1000++;
+						} else {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", " ", "</td>", "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+							nameOfAvailableLAButNotChosen.push(rowObject[i].NAME);
+							timeOfAvailableLAButNotChosen.push(rowObject[i][currentDay + "START"]);
+							daysLeftOfAvaiableLAButNotChosen.push(rowObject[i].DAYSLEFT);
+						}
+					} else if(rowObject[i][currentDay + "AVAILABLE"] === 'A' && rowObject[i][currentDay + "START"] === 900 && rowObject[i].DAYSLEFT > 0) {
+						if(Math.random() * 100 < 100 && currentCount900 !== rowObject[0].nine) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "900", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount900++;
+						} else if(Math.random() * 100 < 100 && currentCount1000 !== rowObject[0].ten) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1000", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount1000++;
+						} else {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", " ", "</td>", "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+							nameOfAvailableLAButNotChosen.push(rowObject[i].NAME);
+							timeOfAvailableLAButNotChosen.push(rowObject[i][currentDay + "START"]);
+							daysLeftOfAvaiableLAButNotChosen.push(rowObject[i].DAYSLEFT);
+						}
+					} else if(rowObject[i][currentDay + "AVAILABLE"] === 'A' && rowObject[i][currentDay + "START"] === 930 && rowObject[i].DAYSLEFT > 0) {
+						if(Math.random() * 100 < 100 && currentCount930 !== rowObject[0].ninethirty) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "930", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount930++;
+						} else if(Math.random() * 100 < 100 && currentCount1000 !== rowObject[0].ten) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1000", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount1000++;
+						} else {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", " ", "</td>", "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+							nameOfAvailableLAButNotChosen.push(rowObject[i].NAME);
+							timeOfAvailableLAButNotChosen.push(rowObject[i][currentDay + "START"]);
+							daysLeftOfAvaiableLAButNotChosen.push(rowObject[i].DAYSLEFT);
+						}
+					} else if(rowObject[i][currentDay + "AVAILABLE"] === 'A' && rowObject[i][currentDay + "START"] === 1000 && rowObject[i].DAYSLEFT > 0) {
+						if(Math.random() * 100 < 100 && currentCount1000 !== rowObject[0].ten) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1000", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount1000++;
+						} else if(Math.random() * 100 < 100 && currentCount1030 !== rowObject[0].tenthirty) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1030", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount1030++;
+						} else {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", " ", "</td>", "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+							nameOfAvailableLAButNotChosen.push(rowObject[i].NAME);
+							timeOfAvailableLAButNotChosen.push(rowObject[i][currentDay + "START"]);
+							daysLeftOfAvaiableLAButNotChosen.push(rowObject[i].DAYSLEFT);
+						}
+					} else if(rowObject[i][currentDay + "AVAILABLE"] === 'A' && rowObject[i][currentDay + "START"] === 1100 && rowObject[i].DAYSLEFT > 0) {
+						if(Math.random() * 100 < 100 && currentCount1100 !== rowObject[0].eleven) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1100", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount1100++;
+						} else if(Math.random() * 100 < 100 && currentCount1130 !== rowObject[0].eleventhirty) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1030", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount1130++;
+						} else if(Math.random() * 100 < 100 && currentCount1200 !== rowObject[0].twelve) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1030", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount1200++;
+						} else {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", " ", "</td>", "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+							nameOfAvailableLAButNotChosen.push(rowObject[i].NAME);
+							timeOfAvailableLAButNotChosen.push(rowObject[i][currentDay + "START"]);
+							daysLeftOfAvaiableLAButNotChosen.push(rowObject[i].DAYSLEFT);
+						}
+					} else if(rowObject[i][currentDay + "AVAILABLE"] === 'A' && rowObject[i][currentDay + "START"] === 1200 && rowObject[i].DAYSLEFT > 0) {
+						if(Math.random() * 100 < 100 && currentCount1200 !== rowObject[0].twelve) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1200", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount1200++;
+						} else if(Math.random() * 100 < 100 && currentCount1230 !== rowObject[0].twelvethirty) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1230", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount1230++;
+						} else if(Math.random() * 100 < 100 && currentCount1200 !== rowObject[0].thirteen) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1300", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount1300++;
+						} else {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", " ", "</td>", "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+							nameOfAvailableLAButNotChosen.push(rowObject[i].NAME);
+							timeOfAvailableLAButNotChosen.push(rowObject[i][currentDay + "START"]);
+							daysLeftOfAvaiableLAButNotChosen.push(rowObject[i].DAYSLEFT);
+						}
+					} else if(rowObject[i][currentDay + "AVAILABLE"] === 'A' && rowObject[i][currentDay + "START"] === 1300 && rowObject[i].DAYSLEFT > 0) {
+						if(Math.random() * 100 < 100 && currentCount1300 !== rowObject[0].thirteen) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1300", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount1300++;
+						} else {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", " ", "</td>", "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+							nameOfAvailableLAButNotChosen.push(rowObject[i].NAME);
+							timeOfAvailableLAButNotChosen.push(rowObject[i][currentDay + "START"]);
+							daysLeftOfAvaiableLAButNotChosen.push(rowObject[i].DAYSLEFT);
+						}
+					} else if(rowObject[i][currentDay + "AVAILABLE"] === 'A' && rowObject[i][currentDay + "START"] === 1330 && rowObject[i].DAYSLEFT > 0) {
+						if(Math.random() * 100 < 100 && currentCount1330 !== rowObject[0].thirteenthirty) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1330", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount1330++;
+						} else if(Math.random() * 100 < 100 && currentCount1430 !== rowObject[0].fourteenthirty) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1430", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount1430++;
+						} else {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", " ", "</td>", "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+							nameOfAvailableLAButNotChosen.push(rowObject[i].NAME);
+							timeOfAvailableLAButNotChosen.push(rowObject[i][currentDay + "START"]);
+							daysLeftOfAvaiableLAButNotChosen.push(rowObject[i].DAYSLEFT);
+						}
+					} else if(rowObject[i][currentDay + "AVAILABLE"] === 'A' && rowObject[i][currentDay + "START"] === 1430 && rowObject[i].DAYSLEFT > 0) {
+						if(Math.random() * 100 < 100 && currentCount1430 !== rowObject[0].fourteenthirty) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1430", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount1430++;
+						} else {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", " ", "</td>", "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+							nameOfAvailableLAButNotChosen.push(rowObject[i].NAME);
+							timeOfAvailableLAButNotChosen.push(rowObject[i][currentDay + "START"]);
+							daysLeftOfAvaiableLAButNotChosen.push(rowObject[i].DAYSLEFT);
+						}
+					} else if(rowObject[i][currentDay + "AVAILABLE"] === 'A' && rowObject[i][currentDay + "START"] === 1700 && rowObject[i].DAYSLEFT > 0) {
+						if(Math.random() * 100 < 100 && currentCount1700 !== rowObject[0].seventeen) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1700", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount1700++;
+						} else if(Math.random() * 100 < 100 && currentCount1730 !== rowObject[0].seventeenthirty) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1730", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount1730++;
+						} else {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", " ", "</td>", "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+							nameOfAvailableLAButNotChosen.push(rowObject[i].NAME);
+							timeOfAvailableLAButNotChosen.push(rowObject[i][currentDay + "START"]);
+							daysLeftOfAvaiableLAButNotChosen.push(rowObject[i].DAYSLEFT);
+						}
+					} else if(rowObject[i][currentDay + "AVAILABLE"] === 'A' && rowObject[i][currentDay + "START"] === 1730 && rowObject[i].DAYSLEFT > 0) {
+						if(Math.random() * 100 < 100 && currentCount1730 !== rowObject[0].seventeenthirty) {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", "1730", "</td>", "<td>", rowObject[i].DAYSLEFT - 1, "</td>", "</tr>", "</table>");
+							currentCount1730++;
+						} else {
+							document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", " ", "</td>", "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+							nameOfAvailableLAButNotChosen.push(rowObject[i].NAME);
+							timeOfAvailableLAButNotChosen.push(rowObject[i][currentDay + "START"])
+							daysLeftOfAvaiableLAButNotChosen.push(rowObject[i].DAYSLEFT)
+						}
+					} else {
+						document.write("<table>", "<tr>", "<td>", rowObject[i].NAME, "</td>", "<td>", " ", "</td>", "<td>", (rowObject[i].DAYSLEFT), "</td>", "</tr>", "</table>");
+					}
+				}
+				for(var i = 0; i < secondHalfName.length; i++) {
+					document.write("<table>", "<tr>", "<td>", secondHalfName[i], "</td>", "<td>", secondHalfTime[i], "</td>", "<td>", secondHalfDaysLeft[i], "</td>", "</tr>", "</table>");
+				}
+				document.write("<br>" + "TOTALS:" + "<br>")
+				if(rowObject[0].five !== 0) {
+					document.write("<br>" + "500: " + rowObject[0].five + "(# of LAs you need) - " + currentCount500 + "(# of LAs the program has randomly selected) = " + (rowObject[0].five - currentCount500) + " remaining");
+				}
+				if(rowObject[0].fivethirty !== 0) {
+					document.write("<br>" + "530: " + rowObject[0].fivethirty + "(# of LAs you need) - " + currentCount530 + "(# of LAs the program has randomly selected) = " + (rowObject[0].fivethirty - currentCount530) + " remaining");
+				}
+				if(rowObject[0].six !== 0) {
+					document.write("<br>" + "600: " + rowObject[0].six + "(# of LAs you need) - " + currentCount600 + "(# of LAs the program has randomly selected) = " + (rowObject[0].six - currentCount600) + " remaining");
+				}
+				if(rowObject[0].sixthirty !== 0) {
+					document.write("<br>" + "630: " + rowObject[0].sixthirty + "(# of LAs you need) - " + currentCount630 + "(# of LAs the program has randomly selected) = " + (rowObject[0].sixthirty - currentCount630) + " remaining");
+				}
+				if(rowObject[0].seven !== 0) {
+					document.write("<br>" + "700: " + rowObject[0].seven + "(# of LAs you need) - " + currentCount700 + "(# of LAs the program has randomly selected) = " + (rowObject[0].seven - currentCount700) + " remaining");
+				}
+				if(rowObject[0].seventhirty !== 0) {
+					document.write("<br>" + "730: " + rowObject[0].seventhirty + "(# of LAs you need) - " + currentCount730 + "(# of LAs the program has randomly selected) = " + (rowObject[0].seventhirty - currentCount730) + " remaining");
+				}
+				if(rowObject[0].eight !== 0) {
+					document.write("<br>" + "800: " + rowObject[0].eight + "(# of LAs you need) - " + currentCount800 + "(# of LAs the program has randomly selected) = " + (rowObject[0].eight - currentCount800) + " remaining");
+				}
+				if(rowObject[0].eightthirty !== 0) {
+					document.write("<br>" + "830: " + rowObject[0].eightthirty + "(# of LAs you need) - " + currentCount830 + "(# of LAs the program has randomly selected) = " + (rowObject[0].eightthirty - currentCount830) + " remaining");
+				}
+				if(rowObject[0].nine !== 0) {
+					document.write("<br>" + "900: " + rowObject[0].nine + "(# of LAs you need) - " + currentCount900 + "(# of LAs the program has randomly selected) = " + (rowObject[0].nine - currentCount900) + " remaining");
+				}
+				if(rowObject[0].ninethirty !== 0) {
+					document.write("<br>" + "930: " + rowObject[0].ninethirty + "(# of LAs you need) - " + currentCount930 + "(# of LAs the program has randomly selected) = " + (rowObject[0].ninethirty - currentCount930) + " remaining");
+				}
+				if(rowObject[0].ten !== 0) {
+					document.write("<br>" + "1000: " + rowObject[0].ten + "(# of LAs you need) - " + currentCount1000 + "(# of LAs the program has randomly selected) = " + (rowObject[0].ten - currentCount1000) + " remaining");
+				}
+				if(rowObject[0].thirteenthirty !== 0) {
+					document.write("<br>" + "1330: " + rowObject[0].thirteenthirty + "(# of LAs you need) - " + currentCount1330 + "(# of LAs the program has randomly selected) = " + (rowObject[0].thirteenthirty - currentCount1330) + " remaining");
+				}
+				if(rowObject[0].fourteenthirty !== 0) {
+					document.write("<br>" + "1430: " + rowObject[0].fourteenthirty + "(# of LAs you need) - " + currentCount1430 + "(# of LAs the program has randomly selected) = " + (rowObject[0].fourteenthirty - currentCount1430) + " remaining");
+				}
+				if(rowObject[0].seventeen !== 0) {
+					document.write("<br>" + "1700: " + rowObject[0].seventeen + "(# of LAs you need) - " + currentCount1700 + "(# of LAs the program has randomly selected) = " + (rowObject[0].seventeen - currentCount1700) + " remaining");
+				}
+				if(rowObject[0].seventeenthirty !== 0) {
+					document.write("<br>" + "1730: " + rowObject[0].seventeenthirty + "(# of LAs you need) - " + currentCount1730 + "(# of LAs the program has randomly selected) = " + (rowObject[0].seventeenthirty - currentCount1730) + " remaining");
+				}
+				document.write("<br>" + "<br>" + "LAs who are available to work this day but was randomly selected to not work:");
+				document.write("<table>", "<tr>", "<td>", 'NAME', "</td>", "<td>", 'TIME', "</td>", "<td>", 'DAYSLEFT', "</td>", "</tr>", "</table>");
+				document.write("<br>");
+				for(var i = 0; i < nameOfAvailableLAButNotChosen.length; i++) {
+					document.write("<table>", "<tr>", "<td>", nameOfAvailableLAButNotChosen[i], "</td>", "<td>", timeOfAvailableLAButNotChosen[i], "</td>", "<td>", daysLeftOfAvaiableLAButNotChosen[i], "</td>", "</tr>", "</table>");
+				}
+				for(var i = 0; i < nameOfAvailableLAButNotChosenSecondHalf.length; i++) {
+					document.write("<table>", "<tr>", "<td>", nameOfAvailableLAButNotChosenSecondHalf[i], "</td>", "<td>", timeOfAvailableLAButNotChosenSecondHalf[i], "</td>", "<td>", daysLeftOfAvaiableLAButNotChosenSecondHalf[i], "</td>", "</tr>", "</table>");
+				}
+				document.getElementById("jsondata").innerHTML = JSON.stringify(rowObject, undefined, 4)
+			});
+		}
+	}
+});
+</script>
+
+</html>
